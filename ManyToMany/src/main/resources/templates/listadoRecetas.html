@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title>Ingredientes</title>
+		<object th:replace="common/header :: common-header" />
+	</head>
+	<body>
+		<div th:replace = "common/navbar :: common-navbar">NAVBAR</div>
+		<div class="container">
+			<div class="well">
+				<div class="text-center">
+					<h2 text = "center">Recetas</h2>
+				</div>
+				<table class="table table-bordered">
+				    <thead>
+				      <tr>
+				        <th>Nombre</th>
+				        <th>Descripcion</th>
+				        <th></th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      <tr th:each = "receta : ${recetas}">
+				        <td th:text = "${receta.getName()}"></td>
+				        <td th:text = "${receta.getDescripcion()}"></td>
+				        <td>
+				        	<a th:href="@{/receta/ingrediente(idReceta = ${receta.getIdReceta()})}" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span></a>
+				        	<a th:href="@{/receta/ingredientes(idReceta = ${receta.getIdReceta()})}" class="btn btn-primary"><span class="glyphicon glyphicon-zoom-in"></span></a>
+			        	</td>
+				      </tr>
+				    </tbody>
+				  </table>
+			</div>
+		</div>
+	</body>
+</html>

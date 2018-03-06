@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" th:fragment = "common-navbar">
+    	 <div class="container-fluid">
+		    <div class="navbar-header">
+		      <a class="navbar-brand" href="#">Shipping Company</a>
+		    </div>
+		    <ul class="nav navbar-nav">
+		      <li th:classappend="${#httpServletRequest.getRequestURI() == '/'? 'active':''}"><a href="/">Home</a></li>
+		      
+		      <li class="dropdown">
+		        <a class="dropdown-toggle" data-toggle="dropdown" role="button" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/producto') ? 'active':''}">Ingredientes
+		        <span class="caret"></span></a>
+		        <ul class="dropdown-menu">
+		          <li><a href="/ingredientes">Listado</a></li>
+		          <li><a href="/ingrediente">Agregar</a></li>
+		        </ul>
+		      </li>
+			  <li class="dropdown">
+		        <a class="dropdown-toggle" data-toggle="dropdown" role="button" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/cliente') ? 'active':''}">Recetas
+		        <span class="caret"></span></a>
+		        <ul class="dropdown-menu">
+		          <li><a href="/recetas">Listado</a></li>
+		          <li><a href="/receta">Agregar</a></li>
+		        </ul>
+		      </li>
+		    </ul>
+		     <ul class="nav navbar-nav navbar-right">
+			    <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+			  </ul>
+		  </div>
+    </nav>
+</body>
+</html>
