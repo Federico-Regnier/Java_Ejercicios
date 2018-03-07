@@ -10,27 +10,23 @@
 			<div class="col-md-6 col-md-offset-3">
 				<div class="well">
 					<div class="text-center">
-						<h1>Agregar Ingrediente</h1>
+						<h1>Modificar Ingrediente</h1>
 					</div>
 					<div class="text-left">
-						<form th:object="${receta}" th:action="@{/receta/ingrediente}" method="POST">
+						<form th:action="@{/receta/modificar}" method="POST">
 							<input type="hidden" th:field="${receta.idReceta}" />
+							<input type="hidden" id="idIngredienteReceta" name="idIngredienteReceta" th:value="${idIngredienteReceta}" />
 							<div class="form-group">
 								<label>Ingrediente</label>
-								<select class="form-control" th:name="idIngrediente">
-									<option th:each = "ingrediente : ${ingredientes}" 
-											th:value = "${ingrediente.getIdIngrediente()}"
-											th:text = "${ingrediente.getNombre()}"
-									></option>
-								</select>
+								<input type="text" class="form-control" th:value="${ingrediente.getNombre()}" disabled="true"/>
 							</div>
 							<div class="form-group">
 								<label>Cantidad</label>
-								<input type="number" class="form-control" th:name="cantidad"/>
+								<input type="number" class="form-control" name="cantidad" id="cantidad" th:value="${cantidad}"/>
 							</div>
 							<div class="form-group">
 									<input type="submit" class="btn btn-primary" value="Enviar"/>
-									<a th:href="@{/recetas}" class="btn btn-danger">Volver</a>
+									<a th:href="@{/receta/ingredientes(idReceta = ${receta.getIdReceta()})}" class="btn btn-danger">Volver</a>
 							</div>
 						</form>
 					</div>			

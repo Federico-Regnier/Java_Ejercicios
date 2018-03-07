@@ -9,7 +9,7 @@
 		<div class="container">
 			<div class="well">
 				<div class="text-center">
-					<h2 text = "center" th:text = "${receta.getNombre()}"></h2>
+					<h2 text = "center" th:text = "${receta.getName()}"></h2>
 				</div>
 				<table class="table table-bordered">
 				    <thead>
@@ -24,12 +24,20 @@
 				        <td th:text = "${ingredienteReceta.getIngrediente().getNombre()}"></td>
 				        <td th:text = "${ingredienteReceta.getCantidadIngrediente()}"></td>
 				        <td>
-				        	<a th:href="#" class="btn btn-primary"><span class="glyphicon glyphicon-pencil"></span></a>
-				        	<a th:href="#"><span class="glyphicon glyphicon-trash"></span></a>
+				        	<a th:href="@{/receta/modificar(idIngredienteReceta = ${ingredienteReceta.getIdIgredienteReceta()})}" class="btn btn-primary">
+				        		<span class="glyphicon glyphicon-pencil"></span>
+			        		</a>
+			        		
+	        	           <form th:action="@{/receta/ingrediente}" th:method="DELETE" class="inlineForm">
+				              <input type="hidden" id="idIgredienteReceta" name="idIgredienteReceta" th:value="${ingredienteReceta.getIdIgredienteReceta()}"/>
+				              <input type="hidden" id="idReceta" name="idReceta" th:value="${ingredienteReceta.getReceta().getIdReceta()}"/>
+				              <button type="submit" value="Submit" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></button>
+				           </form>
 			        	</td>
 				      </tr>
 				    </tbody>
 				  </table>
+				  <a th:href="@{/recetas}" class="btn btn-primary">Volver</a>
 			</div>
 		</div>
 	</body>

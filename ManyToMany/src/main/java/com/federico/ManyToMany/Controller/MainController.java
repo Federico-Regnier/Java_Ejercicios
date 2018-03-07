@@ -1,5 +1,7 @@
 package com.federico.ManyToMany.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -112,5 +114,56 @@ public class MainController {
 		daoIngredienteReceta.save(ingredienteReceta);
 		
 		return "redirect:/recetas";
+	}
+	
+	@RequestMapping(value = "/receta/ingredientes", 
+			method = RequestMethod.GET)
+	public ModelAndView verIngredientesReceta(@RequestParam("idReceta")Long idReceta) {
+		ModelAndView modelAndView = new ModelAndView();
+		Receta receta = daoReceta.findOne(idReceta);
+		
+		List<IngredienteReceta> ingredienteReceta = daoIngredienteReceta.findByReceta(receta);
+		
+		modelAndView.addObject("receta", receta);
+		modelAndView.addObject("ingredientesReceta", ingredienteReceta);
+		modelAndView.setViewName("listadoIngredientesReceta");
+		
+		return modelAndView;
+	}
+	
+	@RequestMapping(value = "/receta/ingrediente", 
+					method = RequestMethod.DELETE)
+	public ModelAndView borrarIngredienteReceta(@ModelAttribute IngredienteReceta ingredienteReceta, @RequestParam("idReceta")long idReceta) {
+		daoIngredienteReceta.delete(ingredienteReceta.getIdIgredienteReceta());
+		
+		return verIngredientesReceta(idReceta);
+	}
+	
+	
+	@RequestMapping(value = "/receta/modificar", 
+			method = RequestMethod.GET)
+	public ModelAndView formularioCantidadIngrediente(@RequestParam("idIngredienteReceta")Long idIngredienteReceta) {
+		IngredienteReceta ingredienteReceta = daoIngredienteReceta.findOne(idIngredienteReceta);
+		ModelAndView modelAndView = new ModelAndView();
+		
+		modelAndView.addObject("idIngredienteReceta", ingredienteReceta.getIdIgredienteReceta());
+		modelAndView.addObject("ingrediente", ingredienteReceta.getIngrediente());
+		modelAndView.addObject("cantidad", ingredienteReceta.getCantidadIngrediente());
+		modelAndView.addObject("receta", ingredienteReceta.getReceta());
+		modelAndView.setViewName("modificarCantidadIngrediente");
+		
+		return modelAndView;
+	}
+	
+	@RequestMapping(value = "/receta/modificar", 
+			method = RequestMethod.POST)
+	public ModelAndView modificarCantidadIngrediente(@RequestParam("idIngredienteReceta")Long idIngredienteReceta, 
+													 @RequestParam("idReceta")Long idReceta, @RequestParam("cantidad")Integer cantidad) {
+		IngredienteReceta ingredienteReceta = daoIngredienteReceta.findOne(idIngredienteReceta);
+		
+		ingredienteReceta.setCantidadIngrediente(cantidad);
+		daoIngredienteReceta.save(ingredienteReceta);
+		
+		return verIngredientesReceta(idReceta);
 	}
 }
