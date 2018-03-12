@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+  	<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.min.css}" />
+  	<link rel="stylesheet" th:href="@{/css/main.css}" href="../../css/main.css" />
+  	<title>Repuestos</title>
+  </head>
+  <body>
+	<div class="container well">
+		<div>
+			<h1 style="text-align:center" th:text="'Vehiculo: ' + ${ordenRepuesto.getOrden().getPatente()}"></h1>
+  		</div>
+		<div>
+			<h1>Repuestos</h1>  	
+		  	<table class="table table-bordered">
+		  		<thead>
+			  		<tr>
+			  			<th>Repuesto</th>
+				  		<th>Cantidad</th>
+				  		<th></th>
+			  		</tr>
+		  		</thead>
+		  		<tbody>
+		  			<tr th:each = "ordenRepuesto : ${ordenRepuestos}">
+		  				<td th:text = "${ordenRepuesto.getRepuesto().getDescripcion()}"></td>
+		  				<td th:text = "${ordenRepuesto.getCantidadRepuesto()}"></td>
+			  			<td>
+			  				<a href="#"
+			  				   class="btn btn-danger">Borrar</a>
+			  			</td>
+		  			</tr>
+		  		</tbody>
+		  	</table>
+		</div>
+	    <form th:action="@{/orden/repuestos}" method = "post" class="form-inline" th:object = "${ordenRepuesto}">
+			<input type="hidden" th:field="*{orden.idOrden}"/>
+			<div class="form-group">
+				<select th:field="*{repuesto.idRepuesto}">
+					<option th:each="repuesto : ${repuestos}"
+							th:text="${repuesto.getDescripcion()}"
+							th:value="${repuesto.getIdRepuesto()}"/>
+				</select>
+			</div>
+			<div class="form-group">
+				<label>Cantidad</label>
+				<input type="number" th:field="*{cantidadRepuesto}" required="required"/>
+			</div>
+			
+		    <div class="form-group">
+		    	<input class="btn btn-primary" type = "submit" 
+	    		value = "Agregar" />
+	    	</div>
+	    </form>
+	    <br />
+  		<div>
+		  	<a th:href = "@{/ordenes}" 
+		  	 th:text = "Volver" class="btn btn-info" ></a>
+  		</div>
+  	</div>
+  </body>
+</html>

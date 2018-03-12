@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+  	<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.min.css}" />
+  	<link rel="stylesheet" th:href="@{/css/main.css}" href="../../css/main.css" />
+  	<title>Factura</title>
+  </head>
+  <body>
+	<div class="container">
+		<div class="well">
+			<h1 th:text = "'Reparacion ' + ${orden.getMarca()} + ' ' + ${orden.getPatente()}"></h1>  	
+		 	<table class="table">
+		 		<thead>
+		 			<tr>
+		 				<th>Cant.</th>
+		 				<th>Descripcion</th>
+		 				<th>Precio</th>
+		 			</tr>
+		 		</thead>
+		 		<tbody>
+		 			<tr th:each="ordenRepuesto : ${orden.getOrdenRepuestos()}">
+		 				<td th:text="${ordenRepuesto.getCantidadRepuesto()}"></td>
+		 				<td th:text="${ordenRepuesto.getRepuesto().getDescripcion()}"></td>
+		 				<td th:text="${ordenRepuesto.getCostoTotal()}"></td>
+		 			</tr>
+		 			<tr>
+		 				<td th:text="${orden.getHorasTrabajadas()} + 'hs'"></td>
+		 				<td> Mano de obra</td>
+		 				<td th:text="${orden.calcularCostoManoDeObra()}"></td>
+		 			</tr>
+		 			<tr>
+		 				<td></td>
+		 				<td>Total</td>
+		 				<td th:text="${orden.calcularCostoTotal()}"></td>
+		 			</tr>
+		 		</tbody>
+		 	</table> 	
+		</div>
+  		<div>
+		  	<a th:href = "@{/ordenes}" 
+		  	 th:text = "Volver" class="btn btn-info" ></a>
+  		</div>
+  	</div>
+  </body>
+</html>

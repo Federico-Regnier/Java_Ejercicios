@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+  	<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.min.css}" />
+  	<link rel="stylesheet" th:href="@{/css/main.css}" href="../../css/main.css" />
+  	<title>Ordenes</title>
+  </head>
+  <body>
+	<div class="container">
+		<div class="well">
+			<h1>Ordenes de Reparacion</h1>  	
+		  	<table class="table table-bordered">
+		  		<thead>
+			  		<tr>
+			  			<th>Patente</th>
+			  			<th>Marca</th>
+			  			<th>Fecha</th>
+			  			<th>Finalizada</th>
+				  		<th></th>
+			  		</tr>
+		  		</thead>
+		  		<tbody>
+		  			<tr th:each = "orden : ${ordenes}">
+		  				<td th:text = "${orden.getPatente()}"></td>
+		  				<td th:text = "${orden.getMarca()}"></td>
+		  				<td th:text = "${#date.format(orden.fechaIngreso, 'dd/MM/yyyy')}"></td>
+		  				<td th:text = "${orden.isCerrada()}"></td>
+			  			<td>
+			  				<a th:href="@{/orden/repuestos(idOrden = ${orden.getIdOrden()})}"
+			  				   class="btn btn-primary">Repuestos</a>
+		  				    <a th:href="@{/orden/cerrar(idOrden = ${orden.getIdOrden()})}"
+			  				   class="btn btn-success">Finalizar</a>
+			  				<a href="#"
+			  				   class="btn btn-danger">Borrar</a>
+			  			</td>
+		  			</tr>
+		  		</tbody>
+		  	</table>
+		</div>
+  		<div>
+		  	<a th:href = "@{/}" 
+		  	 th:text = "Volver" class="btn btn-info" ></a>
+  		</div>
+  	</div>
+  </body>
+</html>
