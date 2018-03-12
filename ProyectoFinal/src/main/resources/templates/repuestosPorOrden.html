@@ -2,10 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
   	<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.min.css}" />
-  	<link rel="stylesheet" th:href="@{/css/main.css}" href="../../css/main.css" />
+  	<link th:href="@{/css/style.css}" rel="stylesheet" />
   	<title>Repuestos</title>
   </head>
   <body>
+  	<div th:replace="common/navbar :: navbar">NAVBAR</div>
 	<div class="container well">
 		<div>
 			<h1 style="text-align:center" th:text="'Vehiculo: ' + ${ordenRepuesto.getOrden().getPatente()}"></h1>
@@ -21,11 +22,11 @@
 			  		</tr>
 		  		</thead>
 		  		<tbody>
-		  			<tr th:each = "ordenRepuesto : ${ordenRepuestos}">
+		  			<tr th:each = "ordenRepuesto : ${orden.getOrdenRepuestos()}">
 		  				<td th:text = "${ordenRepuesto.getRepuesto().getDescripcion()}"></td>
 		  				<td th:text = "${ordenRepuesto.getCantidadRepuesto()}"></td>
 			  			<td>
-			  				<a href="#"
+			  				<a th:href="@{/orden/repuesto/borrar(idOrdenRepuesto = ${ordenRepuesto.getIdOrdenRepuesto()})}"
 			  				   class="btn btn-danger">Borrar</a>
 			  			</td>
 		  			</tr>
@@ -51,10 +52,26 @@
 	    		value = "Agregar" />
 	    	</div>
 	    </form>
+	    
+	    <br />
+	    <div class = "col-sm-3" style="padding:0px">
+		    <form th:action="@{/orden/cerrar}" method = "post" th:object="${orden}" >
+				<input type = "hidden" th:field = "*{idOrden}" class="form-control" />		    	
+		    	<div class="form-group">
+		    		<label>Horas Trabajadas</label>
+		    		<input type = "number" th:field = "*{horasTrabajadas}" class="form-control" required="required"/>
+		    	</div>
+		    	
+			    <div class="form-group">
+				  	<a th:href = "@{/ordenes}" 
+				  	 th:text = "Volver" class="btn btn-info" ></a>
+		    		<input class="btn btn-success" type = "submit" 
+		    		value = "Finalizar" />
+		    	</div>
+		    </form>
+	    </div>
 	    <br />
   		<div>
-		  	<a th:href = "@{/ordenes}" 
-		  	 th:text = "Volver" class="btn btn-info" ></a>
   		</div>
   	</div>
   </body>

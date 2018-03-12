@@ -1,0 +1,24 @@
+  <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <!-- Static navbar -->
+      <nav class="navbar navbar-inverse" th:fragment="navbar" id = "navbar">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" th:href="@{/}">Taller</a>
+          </div>
+          <ul class="nav navbar-nav">
+            <li th:classappend="${#httpServletRequest.getRequestURI() == '/'? 'active':''}"><a th:href="@{/}">Home</a></li>
+            <li th:classappend="${#httpServletRequest.getRequestURI() == '/orden'? 'active':''}"><a th:href="@{/orden}">Agregar Orden</a></li>
+            <li th:classappend="${#httpServletRequest.getRequestURI() == '/ordenes'? 'active':''}"><a th:href="@{/ordenes}">Ordenes</a></li>
+          </ul>
+          <div class="nav navbar-nav navbar-right">
+	          <a th:href="@{/ordenes}"
+	             th:if="${!(usuario > 0) }" class="btn btn-success navbar-btn"><span class="glyphicon glyphicon-log-in"> </span> Login</a>
+	          
+	            <a th:href="@{/logout}"
+	               th:if="${usuario > 0}"
+	               class="btn btn-danger navbar-btn">Logout</a>
+          </div>
+        </div><!--/.container-fluid -->
+      </nav>
+</html>
