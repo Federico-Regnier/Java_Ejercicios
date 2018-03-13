@@ -25,6 +25,11 @@ public class Empleado {
 		this.idEmpleado = idEmpleado;
 	}
 
+	public Empleado(String usuario, String contrasenia){
+		this.usuario = usuario;
+		this.contrasenia = contrasenia;
+	}
+	
 	public long getIdEmpleado() {
 		return idEmpleado;
 	}

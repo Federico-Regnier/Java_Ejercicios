@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DaoOrden extends CrudRepository<Orden, Long>{
 	List<Orden> findAllByOrderByCerrada();
-	List<Orden> findByEmpleadoOrderByCerrada(Empleado empleado);
+	List<Orden> findByEmpleadoOrderByCerradaAscFechaIngresoDesc(Empleado empleado);
 }

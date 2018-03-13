@@ -9,7 +9,8 @@
   	<div th:replace="common/navbar :: navbar">NAVBAR</div>
 	<div class="container">
 		<div class="well">
-			<h1 th:text = "'Reparacion ' + ${orden.getMarca()} + ' ' + ${orden.getPatente()}"></h1>  	
+			<h1 th:text ="'Reparacion ' + ${orden.getMarca()} + ' ' + ${orden.getPatente()}"></h1> 
+			<h4 th:text="'Mecánico: ' + ${empleado.getNombre()}"></h4> 	
 		 	<table class="table">
 		 		<thead>
 		 			<tr>

@@ -2,6 +2,7 @@ package com.Federico.ProyectoFinal.Controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpSession;
 
@@ -55,12 +56,8 @@ public class MainController {
 			method = RequestMethod.GET)
 	public ModelAndView listarOrdenes(@ModelAttribute("usuario")Long idUsuario){
 		ModelAndView modelAndView = new ModelAndView();
-		if(idUsuario == null){
-			modelAndView.setViewName("index");
-			return modelAndView;
-		}
 		
-		modelAndView.addObject("ordenes", daoOrden.findByEmpleadoOrderByCerrada(new Empleado(idUsuario)));
+		modelAndView.addObject("ordenes", daoOrden.findByEmpleadoOrderByCerradaAscFechaIngresoDesc(new Empleado(idUsuario)));
 		modelAndView.setViewName("listadoOrdenesReparacion");
 		
 		return modelAndView;
@@ -70,17 +67,24 @@ public class MainController {
 	@RequestMapping(value = "/orden",
 			method = RequestMethod.GET)
 	public ModelAndView agregarOrden(@ModelAttribute Cliente propietario, 
-									@ModelAttribute("usuario")Long idUsuario, 
-									Model model){
+									 @ModelAttribute("usuario")Long idUsuario, String mensaje){
 		ModelAndView modelAndView = new ModelAndView();
 		Orden orden = new Orden();
 		
+		// Si le paso un propietario lo seleccciono
 		if(propietario != null){
 			orden.setCliente(propietario);
-		} 
+		}
+		
+		// Para la vista
+		if(mensaje == null){
+			mensaje = "";
+		}
 		
 		modelAndView.addObject("orden", orden);
 		modelAndView.addObject("clientes", daoCliente.findAll());
+		modelAndView.addObject("propietarios", daoCliente.findAll());
+		modelAndView.addObject("mensaje", mensaje);
 		modelAndView.setViewName("formularioOrden");
 		
 		return modelAndView;
@@ -93,28 +97,24 @@ public class MainController {
 									 @ModelAttribute("usuario")Long idUsuario, 
 									 Model model, HttpSession session){
 		// Agrega la fecha de ingreso a la orden
-		Date date = new java.util.Date();
+		Date date = new Date();
 		orden.setFechaIngreso(date);
 		
 		// Agrega el empleado a la orden
 		orden.setEmpleado(new Empleado(idUsuario));
 		
 		// Busca al cliente
-		Cliente propietario = daoCliente.findByDni(orden.getCliente().getDni());
+		Cliente propietario = daoCliente.findOne(orden.getCliente().getIdCliente());
 		
 		// Si no existe, guarda la orden sin Cliente y lleva al form de agregar cliente
 		if(propietario != null){
 			orden.setCliente(propietario);
 			daoOrden.save(orden);
+			
 			return listarRepuestos(orden.getIdOrden(),idUsuario, model, session);
 		} 
 		
-		// Agrega el cliente y guarda la orden
-		propietario = orden.getCliente();
-		orden.setCliente(null);
-		daoOrden.save(orden);
-		
-		return listarOrdenes(idUsuario);
+		return agregarOrden(null, idUsuario, "No se encuentra el propietario");
 	}
 
 	// Muestra un listado con los repuestos de la orden
@@ -154,7 +154,8 @@ public class MainController {
 	// Agrega un repuesto a la orden
 	@RequestMapping(value = "/orden/repuestos",
 			method = RequestMethod.POST)
-	public String agregarRepuesto(@ModelAttribute OrdenRepuesto ordenRepuestoHtml, @ModelAttribute("orden")Orden orden){
+	public String agregarRepuesto(@ModelAttribute OrdenRepuesto ordenRepuestoHtml, 
+								  @ModelAttribute("orden")Orden orden){
 		Repuesto repuesto = daoRepuesto.findOne(ordenRepuestoHtml.getRepuesto().getIdRepuesto());
 		if(orden == null || 
 			repuesto == null){
@@ -171,34 +172,48 @@ public class MainController {
 		if(ordenRepuesto != null){
 			// Si el repuesto ya esta, le sumo la cantidad de repuesto pasada
 			ordenRepuesto.setCantidadRepuesto(ordenRepuesto.getCantidadRepuesto() + ordenRepuestoHtml.getCantidadRepuesto());
+			
+			// Cambia la cantidad de repuesto del carrito
+			Iterator<OrdenRepuesto> it = orden.getOrdenRepuestos().iterator();
+			while(it.hasNext()){
+				OrdenRepuesto oRep = it.next();
+				if(oRep.getIdOrdenRepuesto() == ordenRepuesto.getIdOrdenRepuesto()){
+					oRep.setCantidadRepuesto(oRep.getCantidadRepuesto() + ordenRepuestoHtml.getCantidadRepuesto());
+				}
+			}
+			
 		} else {
+			// Agrego el repuesto a la session
 			ordenRepuesto = ordenRepuestoHtml;
+			if(orden.getOrdenRepuestos() == null){
+				orden.setOrdenRepuestos(new ArrayList<>());
+			}
+			orden.getOrdenRepuestos().add(ordenRepuesto);
 		}
 		
 		ordenRepuesto.setRepuesto(repuesto);
 		daoOrdenRepuesto.save(ordenRepuesto);
 		
-		// Agrego el repuesto a la session
-		if(orden.getOrdenRepuestos() == null){
-			orden.setOrdenRepuestos(new ArrayList<>());
-		}
-		orden.getOrdenRepuestos().add(ordenRepuesto);
-		
 		return "redirect:/orden/repuestos?idOrden=" + ordenRepuestoHtml.getOrden().getIdOrden();
 	}
 	
+	// Borra un repuesto de la orden
 	@RequestMapping(value = "/orden/repuesto/borrar",
 			method = RequestMethod.GET)
-	public String borrarRepuesto(@RequestParam("idOrdenRepuesto")Long idOrdenRepuesto, @ModelAttribute("orden")Orden orden){
+	public String borrarRepuesto(@RequestParam("idOrdenRepuesto")Long idOrdenRepuesto, 
+								 @ModelAttribute("orden")Orden orden){
 		
-		// Verifico que exista la ordenRepuest a borrar
+		// Verifico que exista la ordenRepuesto a borrar
 		if(daoOrdenRepuesto.exists(idOrdenRepuesto)){
 			daoOrdenRepuesto.delete(idOrdenRepuesto);
+			
+			// Borra el repuesto del carrito
 			for(int i = 0; i < orden.getOrdenRepuestos().size();i++){
 				if(orden.getOrdenRepuestos().get(i).getIdOrdenRepuesto() == idOrdenRepuesto){
 					orden.getOrdenRepuestos().remove(i);
 				}
 			}
+			
 		} else{
 			return "redirect:/ordenes";
 		}
@@ -210,12 +225,13 @@ public class MainController {
 	// y cerrar la orden de reparacion
 	@RequestMapping(value = "/orden/cerrar",
 			method = RequestMethod.GET)
-	public ModelAndView cerrarOrden(@RequestParam("idOrden")Long idOrden){
+	public ModelAndView cerrarOrden(@RequestParam("idOrden")Long idOrden,
+									@ModelAttribute("usuario")Long idUsuario){
 		ModelAndView modelAndView = new ModelAndView();
 		Orden orden = daoOrden.findOne(idOrden);
 		
 		if(orden == null){
-			//TODO: mensaje error
+			return listarOrdenes(idUsuario);
 		}
 		
 		modelAndView.addObject("orden", orden);
@@ -228,14 +244,14 @@ public class MainController {
 	// Redirije a la factura
 	@RequestMapping(value = "/orden/cerrar",
 			method = RequestMethod.POST)
-	public ModelAndView cerrarOrden(@ModelAttribute Orden ordenHtml, @ModelAttribute("usuario")Long idUsuario){
+	public ModelAndView cerrarOrden(@ModelAttribute Orden ordenHtml, 
+									@ModelAttribute("usuario")Long idUsuario){
 		Orden orden = daoOrden.findOne(ordenHtml.getIdOrden());
 		
-		// Si no existe la orden 0 no estan las horas trabajadas
+		// Si no existe la orden o no estan las horas trabajadas
 		// Vuelvo a la lista
 		if(orden == null || ordenHtml.getHorasTrabajadas() == null){
-			//TODO: mensaje error
-			return getIndex();
+			return listarOrdenes(idUsuario);
 		}
 		
 		// Si la orden esta cerrada, vuelve al listado
@@ -247,31 +263,44 @@ public class MainController {
 		orden.setCerrada(true);
 		daoOrden.save(orden);
 		
-		return facturar(orden);
+		return facturar(orden, idUsuario);
 	}
 	
+	// Muestra la factura de la orden
 	@RequestMapping(value = "/orden/factura",
 					method = RequestMethod.GET)
-	public ModelAndView mostrarFactura(@RequestParam("idOrden")long idOrden){
-		return facturar(daoOrden.findOne(idOrden));
+	public ModelAndView mostrarFactura(@RequestParam("idOrden")long idOrden, 
+									   @ModelAttribute("usuario")Long idUsuario){
+		return facturar(daoOrden.findOne(idOrden), idUsuario);
 	}
 	
 	//Muestra el detalle de la orden
-	private ModelAndView facturar(Orden orden){
+	private ModelAndView facturar(Orden orden, Long idEmpleado){
 		ModelAndView modelAndView = new ModelAndView();
+		Empleado empleado = daoEmpleado.findOne(idEmpleado);
 		
 		modelAndView.addObject("orden", orden);
+		modelAndView.addObject("empleado", empleado);
 		modelAndView.setViewName("factura");
 		
 		return modelAndView;
 	}
 	
-	// Muestra form para agregar un propietario
-	public ModelAndView agregarPropietario(Long idOrden, Cliente cliente){
+	// Muestra form para agregar o modificar un propietario
+	@RequestMapping(value = "/propietario",
+					method = RequestMethod.GET)
+	public ModelAndView agregarPropietario(@ModelAttribute("usuario")Long idUsuario, 
+										   @RequestParam(name = "idCliente", required = false)Long idCliente){
 		ModelAndView modelAndView = new ModelAndView();
+		Cliente cliente;
+		
+		if(idCliente != null){
+			cliente = daoCliente.findOne(idCliente);
+		} else {
+			cliente = new Cliente();
+		}
 		
 		modelAndView.addObject("propietario", cliente);
-		modelAndView.addObject("idOrden", idOrden);
 		modelAndView.setViewName("formularioCliente");
 		
 		return modelAndView;
@@ -280,22 +309,48 @@ public class MainController {
 	// Agrega un propietario y redirige a la pantalla para agregar orden
 	@RequestMapping(value = "/propietario",
 					method = RequestMethod.POST)
-	public ModelAndView agregarPropietario(@ModelAttribute Cliente cliente, 
-										   @RequestParam("idOrden")Long idOrden, 
-										   Model model, HttpSession session,
+	public ModelAndView agregarPropietario(@ModelAttribute Cliente cliente,
 										   @ModelAttribute("usuario")Long idUsuario){
+		Boolean  clienteNuevo = true;
+		
+		// Si no se pasa el cliente vuelve al form
 		if(cliente == null){
-			return agregarPropietario(idOrden, null);
+			return agregarPropietario(idUsuario, null);
 		}
+		
+		// Verifico si es un cliente nuevo o no
+		if(cliente.getIdCliente() != 0){
+			clienteNuevo = false;
+		}
+		
 		// Guardo el cliente
 		daoCliente.save(cliente);
 		
-		//Agrego el cliente a la orden
-		Orden orden = daoOrden.findOne(idOrden);
-		orden.setCliente(cliente);
-		daoOrden.save(orden);
+		return clienteNuevo ? agregarOrden(cliente, idUsuario, "") : listarPropietarios(idUsuario);
+	}
+	
+	// Listado de propietarios(clientes)
+	@RequestMapping(value = "/propietarios",
+					method = RequestMethod.GET)
+	public ModelAndView listarPropietarios(@ModelAttribute("usuario")Long idUsuario){
+		ModelAndView modelAndView = new ModelAndView();
 		
-		return listarRepuestos(idOrden, idUsuario, model, session);
+		modelAndView.addObject("propietarios", daoCliente.findAll());
+		modelAndView.setViewName("listadoPropietarios");
+		
+		return modelAndView;
+	}
+	
+	// Listado de repuestos
+	@RequestMapping(value = "/repuestos",
+					method = RequestMethod.GET)
+	public ModelAndView listarRepuestos(@ModelAttribute("usuario")Long idUsuario){
+		ModelAndView modelAndView = new ModelAndView();
+		
+		modelAndView.addObject("repuestos", daoRepuesto.findAll());
+		modelAndView.setViewName("listadoRepuestos");
+		
+		return modelAndView;
 	}
 	
 	// Formulario para agregar un empleado
@@ -340,19 +395,22 @@ public class MainController {
 		return modelAndView;
 	}
 	
+	// Guarda la id del empleado en usuario si el user y la pass son correctas
 	@RequestMapping(value = "/login",
 					method = RequestMethod.POST)
-	public String login(@ModelAttribute Empleado empleadoHtml, Model model){
+	public ModelAndView login(@ModelAttribute Empleado empleadoHtml, Model model){
 		Empleado empleado = daoEmpleado.findByUsuarioAndContrasenia(empleadoHtml.getUsuario(), empleadoHtml.getContrasenia());
+		
 		if(empleado != null){
 			model.addAttribute("usuario", empleado.getIdEmpleado());
 		} else {
-			return "redirect:/login";
+			return login("Usuario o contraseña incorrectos");
 		}
 		
-		return "redirect:/orden";
+		return listarOrdenes(empleado.getIdEmpleado());
 	}
 	
+	// Termina la sesion
 	@RequestMapping(value = "/logout",
 					method = RequestMethod.GET)
 	public String logout(SessionStatus status){
@@ -361,8 +419,7 @@ public class MainController {
 	}
 	
 	@ExceptionHandler(HttpSessionRequiredException.class)
-	public ModelAndView errorUsuario(){
-		return login("");
+	public String errorUsuario(){
+		return "redirect:/login";
 	}
-	
 }
