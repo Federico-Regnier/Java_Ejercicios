@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DaoOrdenRepuesto extends CrudRepository<OrdenRepuesto, Long>{
 	List<OrdenRepuesto> findByOrden(Orden orden);
+	OrdenRepuesto findByOrdenAndRepuesto(Orden orden, Repuesto repuesto);
 }

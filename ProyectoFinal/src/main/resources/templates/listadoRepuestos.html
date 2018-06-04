@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+  	<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.min.css}" />
+  	<link th:href="@{/css/style.css}" rel="stylesheet" />
+  	<title>Repuestos</title>
+  </head>
+  <body>
+  	<div th:replace="common/navbar :: navbar">NAVBAR</div>
+	<div class="container">
+		<div class="well">
+			<h1>Repuestos</h1>  	
+		  	<table class="table table-bordered">
+		  		<thead>
+			  		<tr>
+			  			<th>Repuesto</th>
+			  			<th>Costo</th>
+			  		</tr>
+		  		</thead>
+		  		<tbody>
+		  			<tr th:each = "repuesto : ${repuestos}">
+		  				<td th:text = "${repuesto.getDescripcion()}"></td>
+		  				<td th:text = "${repuesto.getCosto()}"></td>
+		  			</tr>
+		  		</tbody>
+		  	</table>
+		</div>
+  	</div>
+  </body>
+</html>

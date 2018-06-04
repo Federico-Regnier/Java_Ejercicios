@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -27,13 +28,17 @@ public class Orden {
 	@JoinColumn(name = "idCliente")
 	private Cliente cliente;
 	
-	@OneToMany(mappedBy = "orden")
+	@OneToMany(mappedBy = "orden", 
+			   fetch = FetchType.EAGER)
 	private List<OrdenRepuesto> ordenRepuestos;
+	
+	@ManyToOne
+	@JoinColumn(name = "idEmpleado")
+	private Empleado empleado;
 	
 	public Orden(){
 		this.cerrada = false;
 	}
-
 
 	public long getIdOrden() {
 		return idOrden;
@@ -112,6 +117,15 @@ public class Orden {
 	
 	public void setCerrada(Boolean cerrada) {
 		this.cerrada = cerrada;
+	}
+	
+	public Empleado getEmpleado() {
+		return empleado;
+	}
+	
+	
+	public void setEmpleado(Empleado empleado) {
+		this.empleado = empleado;
 	}
 	
 	public Double calcularCostoTotal(){

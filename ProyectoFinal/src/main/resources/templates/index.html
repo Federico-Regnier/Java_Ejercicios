@@ -2,12 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
   	<link rel="stylesheet" type="text/css" th:href="@{webjars/bootstrap/3.3.7/css/bootstrap.min.css}" />
-  	<link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
+  	<link th:href="@{/css/style.css}" rel="stylesheet" />
   	<title>Taller Mecanico</title>
   </head>
   <body>
+	<div th:replace="common/navbar :: navbar">NAVBAR</div>
   	<div class="container">
-	  	<h1>Taller Mecánico</h1>
+	  	<h1 style="text-align:center">Taller Mecánico</h1>
     </div>
   </body>
 </html>
